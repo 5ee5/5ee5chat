@@ -58,6 +58,13 @@ header {
   margin-right: 6px;
 }
 
+#messages li .timestamp {
+  font-size: 0.8em;
+  color: #888;
+  margin-left: 6px;
+}
+
+
 /* Chat input form */
 #chat-form {
   display: flex;

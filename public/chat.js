@@ -24,7 +24,7 @@ input.addEventListener('keydown', (e) => {
       input.selectionStart = input.selectionEnd = start + 1;
       e.preventDefault();
     } else {
-      // Send the message programmatically
+      // Send the message
       e.preventDefault();
       sendMessage();
     }
@@ -47,17 +47,33 @@ chatForm.addEventListener('submit', (e) => {
   sendMessage();
 });
 
+// =================== FORMAT TIMESTAMP ===================
+function formatTime(isoString) {
+  const d = new Date(isoString);
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 // =================== RECEIVE MESSAGE ===================
 socket.on('chat message', (msg) => {
   const li = document.createElement('li');
 
   const uname = document.createElement('span');
   uname.classList.add('username');
-  uname.textContent = msg.username + ':';
+  uname.textContent = msg.username + ': ';
   li.appendChild(uname);
 
-  const textNode = document.createTextNode(' ' + msg.text);
+  const textNode = document.createTextNode(msg.text);
   li.appendChild(textNode);
+
+  // Add timestamp
+  if (msg.timestamp) {
+    const time = document.createElement('span');
+    time.classList.add('timestamp');
+    time.textContent = ` [${formatTime(msg.timestamp)}]`;
+    li.appendChild(time);
+  }
 
   messages.appendChild(li);
   messages.scrollTop = messages.scrollHeight;

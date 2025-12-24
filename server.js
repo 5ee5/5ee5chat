@@ -52,7 +52,7 @@ io.on('connection', async (socket) => {
     const message = {
       username,
       text,
-      time: now
+      timestamp: new Date(now).toISOString() // human-readable timestamp
     };
 
     io.emit('chat message', message);
