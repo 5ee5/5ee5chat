@@ -12,6 +12,7 @@ const messages = document.getElementById('messages');
 const chatForm = document.getElementById('chat-form');
 const input = document.getElementById('message');
 const clearBtn = document.getElementById('clear-btn');
+const logoutBtn = document.getElementById('logout-btn');
 
 // =================== HANDLE ENTER / SHIFT+ENTER ===================
 input.addEventListener('keydown', (e) => {
@@ -90,3 +91,12 @@ if (clearBtn) {
 socket.on('chat cleared', () => {
   messages.innerHTML = '';
 });
+
+// =================== LOGOUT FUNCTION ===================
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('chatUsername');
+    socket.disconnect();
+    window.location.reload();
+  });
+}
