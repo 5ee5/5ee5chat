@@ -50,6 +50,7 @@ io.on('connection', async (socket) => {
     socket.lastMsgTime = now;
 
     const message = {
+      id: Date.now() + Math.random(),
       username,
       text,
       timestamp: new Date(now).toISOString() // human-readable timestamp
@@ -62,6 +63,51 @@ io.on('connection', async (socket) => {
       await client.lTrim('chat_messages', 0, MAX_MESSAGES - 1);
     } catch (err) {
       console.error('Redis write failed:', err);
+    }
+  });
+
+  socket.on('delete message', async (id) => {
+    if (!id) return;
+
+    try {
+      const messages = await client.lRange('chat_messages', 0, -1);
+      const filtered = messages.filter(msg => JSON.parse(msg).id != id);
+      
+      await client.del('chat_messages');
+      if (filtered.length > 0) {
+        await client.rPush('chat_messages', filtered);
+      }
+      
+      io.emit('message deleted', id);
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  });
+
+  socket.on('edit message', async (data) => {
+    if (!data || !data.id || !data.text) return;
+
+    const text = String(data.text).trim().slice(0, MAX_MESSAGE_LENGTH);
+
+    try {
+      const messages = await client.lRange('chat_messages', 0, -1);
+      const updated = messages.map(msg => {
+        const parsed = JSON.parse(msg);
+        if (parsed.id == data.id) {
+          parsed.text = text;
+          parsed.edited = true;
+        }
+        return JSON.stringify(parsed);
+      });
+      
+      await client.del('chat_messages');
+      if (updated.length > 0) {
+        await client.rPush('chat_messages', updated);
+      }
+      
+      io.emit('message edited', { id: data.id, text, edited: true });
+    } catch (err) {
+      console.error('Edit failed:', err);
     }
   });
 
