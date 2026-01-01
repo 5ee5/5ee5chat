@@ -1,11 +1,15 @@
 const socket = io();
 
 // =================== USERNAME ===================
-let username = localStorage.getItem('chatUsername');
+// Get username from URL query parameter or localStorage
+const urlParams = new URLSearchParams(window.location.search);
+let username = urlParams.get('user') || localStorage.getItem('chatUsername');
 if (!username) {
   username = prompt("Enter your username:").trim() || "Anonymous";
-  localStorage.setItem('chatUsername', username);
 }
+localStorage.setItem('chatUsername', username);
+// Clean URL by removing query parameter
+window.history.replaceState({}, document.title, window.location.pathname);
 
 // =================== ELEMENTS ===================
 const messages = document.getElementById('messages');
