@@ -91,64 +91,8 @@ socket.on('chat message', (msg) => {
     li.appendChild(time);
   }
 
-  // Add edit and delete buttons (only for own messages)
-  if (msg.username === username) {
-    const btnContainer = document.createElement('div');
-    btnContainer.classList.add('message-actions');
-
-    const editBtn = document.createElement('button');
-    editBtn.classList.add('edit-btn');
-    editBtn.textContent = '✎';
-    editBtn.addEventListener('click', () => editMessage(msg.id, msg.text));
-    btnContainer.appendChild(editBtn);
-
-    const delBtn = document.createElement('button');
-    delBtn.classList.add('delete-btn');
-    delBtn.textContent = '✕';
-    delBtn.addEventListener('click', () => deleteMessage(msg.id));
-    btnContainer.appendChild(delBtn);
-
-    li.appendChild(btnContainer);
-  }
-
   messages.appendChild(li);
   messages.scrollTop = messages.scrollHeight;
-});
-
-// =================== DELETE MESSAGE ===================
-function deleteMessage(id) {
-  if (confirm('Delete this message?')) {
-    socket.emit('delete message', id);
-  }
-}
-
-socket.on('message deleted', (id) => {
-  const li = document.querySelector(`li[data-message-id="${id}"]`);
-  if (li) li.remove();
-});
-
-// =================== EDIT MESSAGE ===================
-function editMessage(id, currentText) {
-  const newText = prompt('Edit message:', currentText);
-  if (newText !== null && newText.trim()) {
-    socket.emit('edit message', { id, text: newText });
-  }
-}
-
-socket.on('message edited', (data) => {
-  const li = document.querySelector(`li[data-message-id="${data.id}"]`);
-  if (li) {
-    const textSpan = li.querySelector('.message-text');
-    if (textSpan) textSpan.textContent = data.text;
-    
-    // Add edited indicator if not already there
-    if (!li.querySelector('.edited')) {
-      const edited = document.createElement('span');
-      edited.classList.add('edited');
-      edited.textContent = ' (edited)';
-      li.insertBefore(edited, li.querySelector('.timestamp'));
-    }
-  }
 });
 
 // =================== CLEAR CHAT ===================
